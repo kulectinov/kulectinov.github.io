@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>Админка · A.Kulectinov</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root {
+    --bg:#16181c; --ink:#fff; --muted:#9aa0aa; --line:#2c3037;
+    --card:#1e2126; --green:#5dd888; --amber:#e6b13a; --red:#e05a5a;
+  }
+  body {
+    font:15px/1.45 'Helvetica Neue', Arial, sans-serif;
+    background:var(--bg); color:var(--ink);
+    padding:20px; max-width:820px; margin:0 auto;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1 { font-size:22px; font-weight:700; letter-spacing:-.02em; margin-bottom:6px; }
+  h2 { font-size:16px; font-weight:700; margin:24px 0 10px; }
+  .sub { color:var(--muted); font-size:12px; margin-bottom:20px; }
+
+  label { display:block; font-size:11px; color:var(--muted);
+          letter-spacing:.08em; text-transform:uppercase;
+          margin:12px 0 5px; }
+  input, textarea, select, button {
+    width:100%; padding:11px 13px; background:var(--card);
+    color:var(--ink); border:1px solid var(--line);
+    border-radius:10px; font:inherit; outline:none;
+  }
+  input:focus, textarea:focus, select:focus { border-color:#5a6070; }
+  textarea { resize:vertical; min-height:70px; font-size:14px; }
+  button { cursor:pointer; border:none; font-weight:700; }
+  .btn-primary { background:var(--green); color:#000; padding:14px; font-size:15px; }
+  .btn-ghost   { background:transparent; color:var(--ink); border:1px solid var(--line); }
+  .btn-danger  { background:transparent; color:var(--red); border:1px solid var(--red); }
+  .btn-small   { padding:8px 12px; font-size:13px; width:auto; }
+
+  .card {
+    background:var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:16px; margin:14px 0;
+  }
+  .card-head {
+    display:flex; justify-content:space-between; align-items:center;
+    gap:10px; margin-bottom:12px;
+  }
+  .card-head .pid { font-size:11px; color:var(--muted); font-family:ui-monospace, monospace; }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+  @media (max-width:560px) { .row2, .row3 { grid-template-columns:1fr; } }
+
+  .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
+  .sticky-save {
+    position:sticky; bottom:12px; margin-top:20px;
+    background:rgba(22,24,28,.92);
+    -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+    padding:10px 0; z-index:5;
+  }
+  #status { margin-top:10px; font-size:13px; min-height:20px; }
+  #status.ok  { color:var(--green); }
+  #status.err { color:var(--red); }
+
+  .log-item {
+    display:grid; grid-template-columns:130px 1fr 90px 36px;
+    gap:8px; align-items:start; margin-bottom:8px;
+  }
+  .log-item input[type="date"] { padding:9px 8px; font-size:13px; }
+  .log-item input[type="number"] { padding:9px 8px; font-size:13px; text-align:center; }
+  .log-item .x {
+    background:transparent; color:var(--muted); border:1px solid var(--line);
+    border-radius:8px; padding:0; height:38px; font-size:16px; line-height:1;
+  }
+  .log-item .x:hover { color:var(--red); border-color:var(--red); }
+
+  details { border-top:1px solid var(--line); margin-top:14px; padding-top:12px; }
+  details summary {
+    cursor:pointer; font-size:12px; color:var(--muted);
+    letter-spacing:.08em; text-transform:uppercase; user-select:none;
+    list-style:none;
+  }
+  details summary::-webkit-details-marker { display:none; }
+  details summary::before { content:"▸ "; }
+  details[open] summary::before { content:"▾ "; }
+
+  .token-hint {
+    background:rgba(230,177,58,.08); border:1px solid rgba(230,177,58,.35);
+    color:#f0d18a; border-radius:10px; padding:12px 14px;
+    font-size:12.5px; line-height:1.6; margin-bottom:16px;
+  }
+  .token-hint a { color:#fff; }
+  .token-hint code {
+    background:rgba(255,255,255,.08); padding:1px 5px; border-radius:4px;
+    font-family:ui-monospace, monospace; font-size:12px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Админка</h1>
+<div class="sub">Изменения коммитятся прямо в GitHub → Pages обновляется за ~30 сек.</div>
+
+<div class="token-hint">
+  Нужен <b>fine-grained token</b> с правом <code>Contents: Read and write</code> на этот репозиторий.
+  Создай здесь: <a href="https://github.com/settings/personal-access-tokens/new" target="_blank">github.com/settings/personal-access-tokens/new</a>.
+  Токен хранится только в твоём браузере (localStorage) и уходит лишь на <code>api.github.com</code>.
+</div>
+
+<label>GitHub token</label>
+<input id="token" type="password" placeholder="github_pat_..." autocomplete="off">
+
+<div class="row2">
+  <div>
+    <label>Репозиторий (user/repo)</label>
+    <input id="repo" placeholder="kulectinov/kulectinov.github.io" autocomplete="off">
+  </div>
+  <div>
+    <label>Файл</label>
+    <input id="path" value="data.json" autocomplete="off">
+  </div>
+</div>
+
+<div class="actions">
+  <button class="btn-ghost btn-small" onclick="load()">⟳ Загрузить из GitHub</button>
+  <button class="btn-ghost btn-small" onclick="downloadLocal()">⬇ Скачать локально</button>
+</div>
+
+<h2>Проекты</h2>
+<div id="projects"></div>
+
+<div class="actions">
+  <button class="btn-ghost" onclick="addProject()">+ Добавить проект</button>
+</div>
+
+<div class="sticky-save">
+  <button class="btn-primary" onclick="save()">💾 Сохранить в GitHub</button>
+  <div id="status"></div>
+</div>
+
+<script>
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ==== persist настроек ====
+  ['token','repo','path'].forEach(function (k) {
+    var v = localStorage.getItem('gh_' + k);
+    if (v) $(k).value = v;
+    $(k).addEventListener('input', function () {
+      localStorage.setItem('gh_' + k, $(k).value);
+    });
+  });
+
+  var data = { projects: [] };
+  var sha  = null;
+
+  function getCreds() {
+    return {
+      token: $('token').value.trim(),
+      repo:  $('repo').value.trim(),
+      path:  $('path').value.trim() || 'data.json'
+    };
+  }
+
+  function apiUrl() {
+    var c = getCreds();
+    return 'https://api.github.com/repos/' + c.repo + '/contents/' + c.path;
+  }
+
+  function setStatus(text, ok) {
+    var el = $('status');
+    el.textContent = text;
+    el.className = ok === true ? 'ok' : ok === false ? 'err' : '';
+  }
+
+  // ==== загрузка ====
+  function load() {
+    var c = getCreds();
+    if (!c.repo || !c.token) return setStatus('Заполни token и repo', false);
+    setStatus('Загрузка...', null);
+
+    fetch(apiUrl() + '?ref=' + Date.now(), {
+      headers: { Authorization: 'Bearer ' + c.token, Accept: 'application/vnd.github+json' }
+    })
+    .then(function (r) {
+      if (r.status === 404) return { notFound: true };
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function (j) {
+      if (j.notFound) {
+        data = { projects: [] };
+        sha = null;
+        setStatus('Файл ещё не создан — при сохранении создастся', null);
+      } else {
+        sha = j.sha;
+        var text = decodeBase64(j.content);
+        data = JSON.parse(text);
+        if (!Array.isArray(data.projects)) data.projects = [];
+        setStatus('Загружено: ' + data.projects.length + ' проектов', true);
+      }
+      render();
+    })
+    .catch(function (e) {
+      setStatus('Ошибка загрузки: ' + e.message, false);
+    });
+  }
+
+  // ==== сохранение ====
+  function save() {
+    var c = getCreds();
+    if (!c.token || !c.repo) return setStatus('Заполни token и repo', false);
+
+    setStatus('Сохранение...', null);
+    var json = JSON.stringify(data, null, 2);
+    var body = {
+      message: 'admin: обновление data.json',
+      content: encodeBase64(json)
+    };
+    if (sha) body.sha = sha;
+
+    fetch(apiUrl(), {
+      method: 'PUT',
+      headers: {
+        Authorization: 'Bearer ' + c.token,
+        Accept: 'application/vnd.github+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    })
+    .then(function (r) {
+      if (!r.ok) return r.text().then(function (t) { throw new Error('HTTP ' + r.status + ' — ' + t); });
+      return r.json();
+    })
+    .then(function (j) {
+      sha = j.content.sha;
+      setStatus('✅ Сохранено. Pages обновится через ~30 сек.', true);
+    })
+    .catch(function (e) {
+      setStatus('❌ ' + e.message, false);
+    });
+  }
+
+  // ==== base64 utf-8 ====
+  function encodeBase64(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+  function decodeBase64(b64) {
+    return decodeURIComponent(escape(atob(b64.replace(/\n/g, ''))));
+  }
+
+  // ==== рендер ====
+  function render() {
+    var box = $('projects');
+    box.innerHTML = '';
+    data.projects.forEach(function (p, i) {
+      box.appendChild(renderProject(p, i));
+    });
+  }
+
+  function renderProject(p, i) {
+    p.log = p.log || {};
+    p.intensity = p.intensity || {};
+
+    var card = document.createElement('div');
+    card.className = 'card';
+
+    var statusOptions = ['ok', 'warn', 'soon'].map(function (s) {
+      return '<option value="' + s + '"' + (p.status === s ? ' selected' : '') + '>' + s + '</option>';
+    }).join('');
+
+    card.innerHTML =
+      '<div class="card-head">' +
+        '<span class="pid">' + (p.id || '—') + '</span>' +
+        '<button class="btn-danger btn-small" data-act="del">Удалить</button>' +
+      '</div>' +
+
+      '<label>Название</label>' +
+      '<input data-k="name" value="' + esc(p.name) + '">' +
+
+      '<label>Описание</label>' +
+      '<textarea data-k="desc">' + esc(p.desc) + '</textarea>' +
+
+      '<div class="row3">' +
+        '<div><label>id</label><input data-k="id" value="' + esc(p.id) + '"></div>' +
+        '<div><label>hue (0–360)</label><input data-k="hue" type="number" min="0" max="360" value="' + (p.hue||210) + '"></div>' +
+        '<div><label>Прогресс 0..1</label><input data-k="progress" type="number" min="0" max="1" step="0.01" value="' + (p.progress||0) + '"></div>' +
+      '</div>' +
+
+      '<div class="row2">' +
+        '<div><label>status</label><select data-k="status">' + statusOptions + '</select></div>' +
+        '<div><label>statusText</label><input data-k="statusText" value="' + esc(p.statusText) + '"></div>' +
+      '</div>' +
+
+      '<details>' +
+        '<summary>Дневник активности (' + Object.keys(p.log).length + ')</summary>' +
+        '<div data-logs></div>' +
+        '<button class="btn-ghost btn-small" data-act="addlog" style="margin-top:8px">+ Добавить запись</button>' +
+      '</details>';
+
+    card.querySelectorAll('[data-k]').forEach(function (inp) {
+      inp.addEventListener('input', function () {
+        var k = inp.dataset.k;
+        var v = inp.value;
+        if (k === 'hue') v = parseInt(v, 10) || 0;
+        if (k === 'progress') v = parseFloat(v) || 0;
+        p[k] = v;
+      });
+    });
+
+    card.querySelector('[data-act="del"]').addEventListener('click', function () {
+      if (!confirm('Удалить проект "' + p.name + '"?')) return;
+      data.projects.splice(i, 1);
+      render();
+    });
+
+    var logsBox = card.querySelector('[data-logs]');
+    renderLogs(p, logsBox);
+
+    card.querySelector('[data-act="addlog"]').addEventListener('click', function () {
+      var today = new Date();
+      var key = today.getFullYear() + '-' +
+        String(today.getMonth()+1).padStart(2,'0') + '-' +
+        String(today.getDate()).padStart(2,'0');
+      if (!p.log[key]) {
+        p.log[key] = '';
+        p.intensity[key] = p.intensity[key] || 2;
+      }
+      renderLogs(p, logsBox);
+      card.querySelector('summary').textContent =
+        'Дневник активности (' + Object.keys(p.log).length + ')';
+    });
+
+    return card;
+  }
+
+  function renderLogs(p, box) {
+    box.innerHTML = '';
+    var dates = Object.keys(p.log).sort().reverse();
+    if (!dates.length) {
+      box.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:6px 0">Записей пока нет</div>';
+      return;
+    }
+    dates.forEach(function (date) {
+      var item = document.createElement('div');
+      item.className = 'log-item';
+      item.innerHTML =
+        '<input type="date" value="' + date + '" data-role="date">' +
+        '<textarea data-role="text" style="min-height:38px">' + esc(p.log[date] || '') + '</textarea>' +
+        '<input type="number" min="0" max="10" value="' + (p.intensity[date] || 2) + '" data-role="int">' +
+        '<button class="x" data-role="del" title="Удалить">×</button>';
+
+      var dateInp = item.querySelector('[data-role="date"]');
+      var textInp = item.querySelector('[data-role="text"]');
+      var intInp  = item.querySelector('[data-role="int"]');
+      var delBtn  = item.querySelector('[data-role="del"]');
+
+      dateInp.addEventListener('change', function () {
+        var newDate = dateInp.value;
+        if (!newDate || newDate === date) return;
+        if (p.log[newDate]) {
+          alert('На эту дату уже есть запись');
+          dateInp.value = date;
+          return;
+        }
+        p.log[newDate] = p.log[date];
+        p.intensity[newDate] = p.intensity[date] || 2;
+        delete p.log[date];
+        delete p.intensity[date];
+        date = newDate;
+      });
+
+      textInp.addEventListener('input', function () { p.log[date] = textInp.value; });
+      intInp.addEventListener('input',  function () { p.intensity[date] = parseInt(intInp.value,10) || 0; });
+
+      delBtn.addEventListener('click', function () {
+        delete p.log[date];
+        delete p.intensity[date];
+        renderLogs(p, box);
+        var card = box.closest('.card');
+        card.querySelector('summary').textContent =
+          'Дневник активности (' + Object.keys(p.log).length + ')';
+      });
+
+      box.appendChild(item);
+    });
+  }
+
+  function addProject() {
+    var id = 'p' + Date.now();
+    data.projects.push({
+      id: id,
+      name: 'Новый проект',
+      status: 'ok',
+      statusText: 'в графике',
+      hue: 210,
+      desc: '',
+      progress: 0,
+      log: {},
+      intensity: {}
+    });
+    render();
+  }
+
+  function esc(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  function downloadLocal() {
+    var json = JSON.stringify(data, null, 2);
+    var blob = new Blob([json], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'data.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  if ($('token').value && $('repo').value) {
+    load();
+  } else {
+    setStatus('Введи token и repo, потом нажми «Загрузить»', null);
+  }
+</script>
+
+</body>
+</html>
