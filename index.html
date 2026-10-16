@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#16181c">
-<title>Сейчас работаю над — Andrew Kulectinov</title>
+<title>Что я делаю сейчас — мой трекер</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   html { scroll-behavior: smooth; color-scheme: dark; }
@@ -565,7 +565,7 @@
 <body>
 
 <header class="head">
-  <div class="logo">A.Kulectinov</div>
+  <div class="logo">Я · трекер</div>
   <div class="meta" id="today">—</div>
 </header>
 
@@ -626,77 +626,14 @@
 </main>
 
 <footer class="foot">
-  <div>© 2026 · Andrew Kulectinov</div>
-  <div><a href="mailto:kulectinov@icloud.com">kulectinov@icloud.com</a></div>
+  <div>© 2026 · Мой трекер</div>
+  <div><a href="mailto:ваш@email">ваш@email</a></div>
 </footer>
 
 <div class="tt" id="tt"></div>
 
 <script>
-  var PROJECTS = [
-    {
-      id: 'yandex',
-      name: 'Яндекс Лицей Python',
-      status: 'ok',
-      statusText: 'в графике',
-      hue: 210,
-      desc: 'Второй курс: ООП, асинхронность, работа с API. Раз в неделю — онлайн-встреча с преподавателем и разбор домашних.',
-      progress: 0.62,
-      log: {
-        '2026-09-28': 'Разобрал декораторы, написал свой <b>@cache</b>',
-        '2026-10-01': 'Домашка №4: классы и наследование',
-        '2026-10-03': 'Асинхронность: <b>asyncio.gather</b> и таймауты',
-        '2026-10-05': 'Пробный проект: Telegram-бот на aiogram',
-        '2026-10-06': 'Созвон с куратором, разбор ошибок',
-        '2026-10-07': 'Рефакторинг бота, вынес хендлеры'
-      },
-      intensity: { '2026-10-05': 4, '2026-10-01': 3 }
-    },
-    {
-      id: 'stepik',
-      name: 'Stepik Python',
-      status: 'ok',
-      statusText: 'в графике',
-      hue: 160,
-      desc: 'Курс «Поколение Python»: базовый и продвинутый. Прохожу задачи почти каждый день по 20–30 минут.',
-      progress: 0.78,
-      log: {
-        '2026-10-02': 'Списки и срезы, 12 задач',
-        '2026-10-04': 'Словари: 8 задач и мини-тест',
-        '2026-10-06': 'Функции, области видимости',
-        '2026-10-07': 'Итоговый тест модуля — <b>92%</b>'
-      }
-    },
-    {
-      id: 'figma-book',
-      name: 'Figma — книга',
-      status: 'warn',
-      statusText: 'чуть отстаю',
-      hue: 25,
-      desc: 'Вёрстка книги «Себе в будущее»: обложка, 40 страниц, иллюстрации, подготовка к печати.',
-      progress: 0.45,
-      log: {
-        '2026-09-30': 'Сетка и типографика, выбрал шрифты',
-        '2026-10-02': 'Обложка: 3 варианта, финал утверждён',
-        '2026-10-05': 'Разворот 4–5: иллюстрация и текст',
-        '2026-10-07': 'Правки по разворотам 1–8'
-      }
-    },
-    {
-      id: 'figma-other',
-      name: 'Figma — другое',
-      status: 'soon',
-      statusText: 'горит',
-      hue: 280,
-      desc: 'Мелкие макеты: оформление для школьных мероприятий, аватарки, постеры. Иногда беру заказы у знакомых.',
-      progress: 0.3,
-      log: {
-        '2026-10-03': 'Постер к школьному концерту',
-        '2026-10-06': 'Иконки для ГДЗ-сайта',
-        '2026-10-07': 'Срочный баннер — надо доделать'
-      }
-    }
-  ];
+  var PROJECTS = [];
 
   var WEEKS = 53, DAYS = 7;
   var END = new Date(); END.setHours(0,0,0,0);
@@ -775,19 +712,21 @@
   var listEl = document.getElementById('project-list');
   var countLabel = document.getElementById('count-label');
 
-  PROJECTS.forEach(function (p) {
-    buildActivity(p);
-    var btn = document.createElement('button');
-    btn.className = 'project';
-    btn.dataset.id = p.id;
-    btn.innerHTML =
-      '<span class="name">' + p.name + '</span>' +
-      '<span class="pct">' + Math.round(p.progress * 100) + '%</span>' +
-      '<span class="status"><span class="dot ' + (p.status === 'ok' ? '' : p.status) + '"></span>' + p.statusText + '</span>';
-    btn.addEventListener('click', function () { select(p.id); });
-    listEl.appendChild(btn);
-  });
-  countLabel.textContent = PROJECTS.length + ' шт.';
+  function renderList() {
+    listEl.innerHTML = '';
+    PROJECTS.forEach(function (p) {
+      var btn = document.createElement('button');
+      btn.className = 'project';
+      btn.dataset.id = p.id;
+      btn.innerHTML =
+        '<span class="name">' + p.name + '</span>' +
+        '<span class="pct">' + Math.round(p.progress * 100) + '%</span>' +
+        '<span class="status"><span class="dot ' + (p.status === 'ok' ? '' : p.status) + '"></span>' + p.statusText + '</span>';
+      btn.addEventListener('click', function () { select(p.id); });
+      listEl.appendChild(btn);
+    });
+    countLabel.textContent = PROJECTS.length + ' шт.';
+  }
 
   var gridEl   = document.getElementById('graph-grid');
   var monthsEl = document.getElementById('graph-months');
@@ -917,7 +856,22 @@
   tickHeader();
   setInterval(tickHeader, 60000);
 
-  select(PROJECTS[0]);
+  fetch('data.json?v=' + Date.now())
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      PROJECTS = data.projects || [];
+      PROJECTS.forEach(function (p) {
+        p.intensity = p.intensity || {};
+        p.log = p.log || {};
+        buildActivity(p);
+      });
+      renderList();
+      if (PROJECTS.length) select(PROJECTS[0].id);
+    })
+    .catch(function (e) {
+      console.error('Не удалось загрузить data.json', e);
+      document.getElementById('d-title').textContent = 'Ошибка загрузки данных';
+    });
 </script>
 
 </body>
