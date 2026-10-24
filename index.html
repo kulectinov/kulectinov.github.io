@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>Python — Andrew Kulectinov</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  
+  :root {
+    --bg: #0a0a0a;
+    --ink: #ffffff;
+    --muted: #555555;
+    --accent: #5dd888;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Кинематографичное свечение на фоне */
+  .glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80vw;
+    height: 80vw;
+    background: radial-gradient(circle, rgba(93, 216, 136, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(60px);
+  }
+
+  /* ===== header ===== */
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 32px 48px;
+    position: relative;
+    z-index: 10;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .head .logo {
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .head .meta {
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ===== main ===== */
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 48px;
+    position: relative;
+    z-index: 10;
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Гигантская цифра */
+  .huge-number {
+    font-size: clamp(160px, 35vw, 450px);
+    font-weight: 800;
+    letter-spacing: -0.07em;
+    line-height: 0.75;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    position: relative;
+    margin-left: -10px; /* Оптическое выравнивание */
+  }
+
+  /* Текст, который красиво стоит рядом с цифрой */
+  .title {
+    font-size: clamp(32px, 6vw, 80px);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    margin-top: 32px;
+    color: var(--muted);
+  }
+
+  .title span {
+    color: var(--ink);
+  }
+
+  /* ===== footer ===== */
+  .foot {
+    padding: 32px 48px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    position: relative;
+    z-index: 10;
+  }
+  .foot a { color: var(--ink); text-decoration: none; }
+  .foot a:hover { text-decoration: underline; }
+
+  /* ===== адаптив ===== */
+  @media (max-width: 760px) {
+    .head { padding: 24px 20px; }
+    main { padding: 0 20px; }
+    .huge-number { font-size: 180px; }
+    .title { font-size: 32px; margin-top: 20px; }
+    .foot { padding: 24px 20px; flex-direction: column; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Свечение на фоне -->
+<div class="glow"></div>
+
+<header class="head">
+  <div class="logo">A.Kulectinov</div>
+  <div class="meta" id="today">—</div>
+</header>
+
+<main>
+  <div class="content">
+    <!-- ========================================== -->
+    <!-- ВОТ ТУТ МЕНЯЙ ЦИФРУ. Больше ничего не трогай. -->
+    <div class="huge-number">14</div>
+    <!-- ========================================== -->
+
+    <div class="title">Дней <span>Python</span><br>подряд</div>
+  </div>
+</main>
+
+<footer class="foot">
+  <div>© 2026 · Andrew Kulectinov</div>
+  <div><a href="mailto:kulectinov@icloud.com">kulectinov@icloud.com</a></div>
+</footer>
+
+<script>
+  function tickHeader() {
+    var now = new Date();
+    var h = now.getHours();
+    var hello = h < 5 ? 'Доброй ночи' : h < 12 ? 'Доброе утро'
+              : h < 18 ? 'Добрый день' : 'Добрый вечер';
+    var months = ['января','февраля','марта','апреля','мая','июня',
+                  'июля','августа','сентября','октября','ноября','декабря'];
+    document.getElementById('today').textContent =
+      hello + ' · ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+  }
+  tickHeader();
+  setInterval(tickHeader, 60000);
+</script>
+
+</body>
+</html>
